@@ -1,5 +1,5 @@
 const registerMiddleware = (req, res, next) => {
-    console.log(`[${req.method}] ${req.ourl}`)
+    console.log(`[${req.method}] ${req.url}`)
     next()
 }
 

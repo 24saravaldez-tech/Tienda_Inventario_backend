@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { productsRoutes } from './src/routes/productosRoutes.js';
 import { pool } from './src/config/database.js';
 import { registerMiddleware } from './src/middlewares/registerMIddleware.js';
@@ -8,6 +9,8 @@ import { internalErrorMiddleware } from './src/middlewares/internalErrorMiddlewa
 const app = express()
 
 app.use(registerMiddleware)
+
+app.use(cors({ origin: 'http://localhost:5173' }))
 
 app.use(express.json())
 

@@ -1,9 +1,11 @@
-const productMiddleware = (schema) => (req, res, next) => {
-    const result = schema.safeParse(req.body)
+import { createProductSchema, statusSchema } from "../schemas/productsSchema"
+
+const putMIddlwware = (req, res, next) => {
+    const result = statusSchema.safeParse(req.body)
 
     if (!result.success) {
         return res.status(400).json({
-            message: 'Los datos enviados no son validos',
+            message: 'El estado es incorrecto',
             errors: result.error.issues.map((error) => error.message)
         })
     }
@@ -14,4 +16,19 @@ const productMiddleware = (schema) => (req, res, next) => {
 }
 
 
-export { productMiddleware }
+const postPatchMiddlware = (req, res, next) => {
+    const result = createProductSchema.safeParse(req.body)
+
+    if (!result.success) {
+        return res.status(400).json({
+            message: 'Los datos no son validos. Intente de nuevo',
+            errors: result.error.issues.map((error) => error.message)
+        })
+    }
+
+    req.body = result.data
+
+    next()
+}
+
+export { putMIddlwware, postPatchMiddlware }
