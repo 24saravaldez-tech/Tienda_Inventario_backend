@@ -4,6 +4,7 @@ import { productsRoutes } from './src/routes/productosRoutes.js';
 import { pool } from './src/config/database.js';
 import { registerMiddleware } from './src/middlewares/registerMIddleware.js';
 import { internalErrorMiddleware } from './src/middlewares/internalErrorMiddleware.js';
+import { notFoundMiddleware } from './src/middlewares/error404Middleware.js';
 
 
 const app = express()
@@ -15,6 +16,8 @@ app.use(cors({ origin: 'http://localhost:5173' }))
 app.use(express.json())
 
 app.use('/api/productos', productsRoutes)
+
+app.use(notFoundMiddleware)
 
 app.use(internalErrorMiddleware)
 

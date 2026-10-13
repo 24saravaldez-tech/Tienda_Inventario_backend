@@ -51,7 +51,7 @@ const updateProduct = async (req, res) => {
 
     }
 
-    if (existe) {
+    if (existe && existe.id_productos != Number(req.params.id)) {
         return res.status(409).json({ message: 'Ya hay un producto con ese codigo. No pueden haber dos codigos iguales' })
     }
 

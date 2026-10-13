@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+const idSchema = z.coerce().number()
+    .int()
+    .positive()
+    .string()
+
 const createProductSchema = z.object({
     codigo: z
         .string('Escriba un codigo para el producto')

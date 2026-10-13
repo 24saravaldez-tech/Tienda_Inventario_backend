@@ -1,4 +1,18 @@
-import { createProductSchema, statusSchema } from "../schemas/productsSchema.js"
+import { createProductSchema, idSchema, statusSchema, updateProductSchema } from "../schemas/productsSchema.js"
+
+const idMiddlware = (req, res, next, id) => {
+    const result = idSchema.safeParse(id)
+
+    if (!result.success) {
+        return res.status(400).json({
+            message: 'El id no es valido',
+            errors: result.error.issues.map((error) => error.message)
+        })
+    }
+
+    next()
+}
+
 
 const putMIddlwware = (req, res, next) => {
     const result = statusSchema.safeParse(req.body)
@@ -31,4 +45,5 @@ const postPatchMiddlware = (req, res, next) => {
     next()
 }
 
-export { putMIddlwware, postPatchMiddlware }
+
+export { idMiddlware, putMIddlwware, postPatchMiddlware }

@@ -1,38 +1,87 @@
-import { useDispatch } from 'react-redux'
-import { getProducts } from '../features/productos.thunk';
 import { useEffect, useState } from 'react';
+import { apiClient } from '../api/apiClient'
 
 function Tabla() {
-    const dispatch = useDispatch()
-    const [rows, setRows] = useState()
+
+    const [rows, setRows] = useState([])
+
+
+    const getOneProduct = async (id) => {
+        const response = await apiClient.get(`/productos/${id}`)
+        return response.data.data
+    }
+
+
+    const updateProduct = async (id, form) => {
+
+        let data = {
+            ...form,
+            codigo: String(form.codigo).toUpperCase(),
+            precio: Number(form.precio),
+            stock: Number(form.stock),
+            estado: form.estado == 'Activo' ? true : false
+        }
+
+        const response = await apiClient.patch(`/productos/${id}/update`, data)
+        return response.data
+    }
+
+
+    const updateProductsStatus = async (id, estado) => {
+        const response = await apiClient.put(`/productos/${id}`, { estado: form.estado == 'Activo' ? true : false })
+        return response.data
+    }
+
+
+    const deleteProduct = async (id) => {
+        const response = await apiClient.delete(`/productos/${id}`)
+        return response.data
+    }
+
+
+    const onEliminar = () => {
+        //debe mostrar un modal
+        console.log('confirmacion')
+    }
+    const onEditar = () => {
+        //debe mostrar el formulario de edicion
+        updateProduct()
+    }
+    const onVer = () => {
+        //debe mostrar una pagina de detalles
+        getOneProduct()
+    }
+    const onEstado = () => {
+        //muestra antes el modal de confimacion antes de cambiar el estado
+        updateProductsStatus()
+    }
+
+    const onConfirmar = (id) => {
+        deleteProduct(id)
+    }
+
+    const getProducts = async () => {
+        const response = await apiClient.get('/productos')
+
+        let filas = {
+            ...response.data.data,
+            acciones: {
+                eliminar: () => onEliminar(response.data.data.id_productos),
+                editar: () => onEditar(response.data.data.id_productos),
+                ver: () => onVer(response.data.data.id_productos),
+                cambiarEstado: () => onEstado(response.data.data.id_productos)
+            }
+        }
+
+        setRows(filas)
+        return response.data.data
+    }
+
+
 
     useEffect(() => {
-        handlerObternerProductos()
+        getProducts()
     }, [])
-
-    const handlerObternerProductos = async () => {
-        try {
-            let response = await dispatch(getProducts()).unwrap()
-
-            let productos = response.map((p) => ({
-                id_productos: p.id_productos,
-                codigo: p.codigo,
-                nombre: p.nombre,
-                categoria: p.categoria,
-                precio: p.precio,
-                stock: p.stock,
-                estado: p.estado,
-                acciones: {
-
-                }
-            }))
-
-            setRows(productos)
-
-        } catch (error) {
-            console.log(error)
-        }
-    }
 
 
     return (
@@ -51,8 +100,8 @@ function Tabla() {
 
             <tbody>
                 {rows.map(p => (
-                    <tr key={p.id}>
-                        <th scope="row">{p.id}</th>
+                    <tr key={p.id_productos}>
+                        <th scope="row">{p.id_productos}</th>
                         <td>{p.nombre}</td>
                         <td>{p.categoria}</td>
                         <td>{p.precio}</td>
