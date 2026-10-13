@@ -11,80 +11,20 @@ import { ProductosContext } from '../context/context';
 
 
 const ProductForm = () => {
-    const { id_buscar, setIdBuscar, setEdicion } = useContext(ProductosContext)
+    const {
+        id_buscar,
+        setIdBuscar,
+        setEdicion,
+        formulario,
+        buscarProducto,
+        estaEditando,
+        setEstaEditando,
+        initialState,
+        createProduct,
+        updateProduct } = useContext(ProductosContext)
+
     const navigate = useNavigate()
 
-    let initialStateForm = {
-        codigo: '',
-        nombre: '',
-        descripcion: '',
-        categoria: '',
-        marca: '',
-        precio: '',
-        stock: '',
-        estado: true
-    }
-    const [formulario, setFormulario] = useState(initialStateForm)
-
-    //=====================================================================
-    const getOneProduct = async (id) => {
-        const response = await apiClient.get(`/${id}`)
-        return response.data.data
-    }
-
-    const buscarProducto = async () => {
-
-        try {
-            const buscado = await getOneProduct(id_buscar)
-            let nuevaData = {
-                codigo: buscado.codigo,
-                nombre: buscado.nombre,
-                descripcion: buscado.descripcion,
-                categoria: buscado.categoria,
-                marca: buscado.marca,
-                precio: buscado.precio,
-                stock: buscado.stock,
-                estado: buscado.estado
-            }
-
-          // setFormulario(nuevaData)
-            console.log('yo soy la nueva data: ', nuevaData)
-            return nuevaData
-
-        } catch (error) {
-            return console.log(error)
-        }
-
-    }
-
-    const updateProduct = async (id, form) => {
-
-        let data = {
-            ...form,
-            codigo: String(form.codigo).toUpperCase(),
-            precio: Number(form.precio),
-            stock: Number(form.stock),
-            estado: form.estado == 'Activo' ? true : false
-        }
-
-        const response = await apiClient.patch(`/${id}/update`, data)
-        return response.data
-    }
-
-
-    const createProduct = async (form) => {
-        let data = {
-            ...form,
-            codigo: String(form.codigo).toUpperCase(),
-            precio: Number(form.precio),
-            stock: Number(form.stock),
-            estado: form.estado == 'Activo' ? true : false
-        }
-        const response = await apiClient.post('/', data)
-        return response.data
-    }
-
-    //=============================================================================
     if (id_buscar) {
         buscarProducto()
     }
@@ -101,27 +41,21 @@ const ProductForm = () => {
     })
 
 
-
     const onSubmit = async (data) => {
 
-        if (id_buscar == null || id_buscar == undefined) {
-            try {
-                await createProduct(data)
-
-            } catch (error) {
-                console.log(error)
-            }
-
-        } else {
-            try {
-                await updateProduct(id, data)
-            } catch (error) {
-                console.log(error)
-            }
-
+        if (estaEditando == true) {
+            await createProduct(data)
         }
 
+        if (estaEditando == false) {
+            console.log('estaoy editando')
+            await updateProduct(id_buscar, data)
+        }
+
+        setEdicion(false)
+        setEstaEditando(false)
         reset()
+        setIdBuscar(null)
         navigate('/')
 
     }
@@ -342,7 +276,7 @@ const ProductForm = () => {
 
                         </div>
                         <div className="col-12">
-                            <button type="submit" className="btn btn-primary" >{id_buscar != null || id_buscar != undefined ? 'Guardar Cambios' : 'Crear Producto'}</button>
+                            <button type="submit" className="btn btn-primary" >{estaEditando == false || estaEditando == null ? 'Guardar Cambios' : 'Crear Producto'}</button>
                             <button type="button" className="btn btn-primary" onClick={() => { navigate('/'), setEdicion(false) }} >Cancelar</button>
                         </div>
                     </form>
