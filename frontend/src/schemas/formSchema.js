@@ -44,7 +44,8 @@ const formSchema = z.object({
         // .min(0, 'El stock no puede ser negativo'),
 
     estado: z
-        .string('El estado debe ser Activo o Inactivo')
+        .boolean('El estado debe ser Activo o Inactivo')
+        .default(true)
 })
 
 export { formSchema }

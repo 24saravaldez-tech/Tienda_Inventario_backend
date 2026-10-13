@@ -6,10 +6,12 @@ import { useForm } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 import { apiClient } from '../api/apiClient';
 import { useNavigate } from "react-router-dom";
+import { useContext } from 'react';
+import { ProductosContext } from '../context/context';
 
 
-
-function ProductForm(id = null) {
+const ProductForm = () => {
+    const { id_buscar, setIdBuscar, setEdicion } = useContext(ProductosContext)
     const navigate = useNavigate()
 
     const initialStateForm = {
@@ -19,17 +21,49 @@ function ProductForm(id = null) {
         categoria: '',
         marca: '',
         precio: '',
-        stock: ''
+        stock: '',
+        estado: true
     }
-
-    const { formulario, setFormulario } = useState(initialStateForm)
-
+    const [formulario, setFormulario] = useState(initialStateForm)
 
     //=====================================================================
     const getOneProduct = async (id) => {
         const response = await apiClient.get(`/${id}`)
         return response.data.data
     }
+
+    const buscarProducto = async () => {
+
+        try {
+            const buscado = await getOneProduct(id_buscar)
+            console.log('buscado', buscado)
+            let nuevaData = {
+                codigo: buscado.codigo,
+                nombre: buscado.nombre,
+                descripcion: buscado.descripcion,
+                categoria: buscado.categoria,
+                marca: buscado.marca,
+                precio: buscado.precio,
+                stock: buscado.stock,
+                estado: buscado.estado
+            }
+            console.log('yo soy la nueva data: ', nuevaData)
+            setFormulario(nuevaData)
+            return nuevaData
+
+        } catch (error) {
+            return console.log(error)
+        }
+
+    }
+
+    console.log(id_buscar, 'en formulario')
+
+    if (id_buscar) {
+        console.log('entro')
+    //    buscarProducto()
+    }
+
 
     const updateProduct = async (id, form) => {
 
@@ -47,7 +81,6 @@ function ProductForm(id = null) {
 
 
     const createProduct = async (form) => {
-        console.log('crear')
         let data = {
             ...form,
             codigo: String(form.codigo).toUpperCase(),
@@ -62,50 +95,42 @@ function ProductForm(id = null) {
     //=============================================================================
 
 
-    const buscarProducto = async () => {
-        try {
-            const buscado = await getOneProduct(id)
-            const edicion = await updateProduct(id, buscado)
-            setFormulario({ buscado })
-
-        } catch (error) {
-            console.log(error)
-        }
-
-    }
-
-
     const {
         handleSubmit,
         control,
         reset,
         formState: { errors },
+        watch
     } = useForm({
-        defaultValues: initialStateForm,
+        defaultValues: formulario,
         resolver: zodResolver(formSchema)
     })
+    console.log(formulario)
 
     const onSubmit = async (data) => {
 
-        console.log('si entre')
+        if (id_buscar == null || id_buscar == undefined) {
+            try {
+                await createProduct(data)
+            } catch (error) {
+                console.log(error)
+            }
 
-        try {
-            await createProduct(data)
-            console.log('en creacion')
-        } catch (error) {
-            console.log(error)
+        } else {
+            try {
+                await updateProduct(id, data)
+            } catch (error) {
+                console.log(error)
+            }
+
         }
 
-
-
+        reset(initialStateForm)
         navigate('/')
+
     }
 
-    // const saludo = () => {
-    //     console.log('hola')
-    //     navigate('/')
-
-    // }
+    console.log(watch())
 
     return (
         <>
@@ -295,11 +320,38 @@ function ProductForm(id = null) {
                             />
 
                         </div>
+
+                        <div className="col-md-6">
+                            <Controller
+                                name='Estado'
+                                control={control}
+                                render={({ field }) =>
+                                (
+                                    <>
+                                        <label htmlFor="estado">Estado</label>
+                                        <select
+                                            id="estado"
+                                            className={`form-control ${errors.estado ? 'is-invalid' : ''}`} {...field}>
+                                            <option value="" disabled hidden>Selecciona una estado</option>
+                                            <option value={true}>Activo</option>
+                                            <option value={false}>Inactivo</option>
+
+                                        </select>
+                                        {errors.estado && (
+                                            <div className="invalid-feedback">{estado.message}</div>
+                                        )}
+                                    </>
+                                )
+                                }
+                            />
+
+                        </div>
                         <div className="col-12">
-                            <button type="submit" className="btn btn-primary" >{id != null || id != undefined ? 'Guardar Cambios' : 'Crear Producto'}</button>
-                            <button type="button" className="btn btn-primary" onClick={() => navigate('/')} >Cancelar</button>
+                            <button type="submit" className="btn btn-primary" >{id_buscar != null || id_buscar != undefined ? 'Guardar Cambios' : 'Crear Producto'}</button>
+                            <button type="button" className="btn btn-primary" onClick={() => { navigate('/'), setEdicion(false) }} >Cancelar</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </>

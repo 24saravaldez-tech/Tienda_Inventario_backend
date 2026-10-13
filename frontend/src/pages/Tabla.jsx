@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/apiClient'
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { ProductForm } from './ProductForm.jsx';
+import { useContext } from 'react';
+import { ProductosContext } from '../context/context.jsx';
 
 
 function Tabla(filas) {
     const navigate = useNavigate()
     const [rows, setRows] = useState([])
-
+    const {id_buscar, setIdBuscar, setEdicion} = useContext(ProductosContext)
 
     useEffect(() => {
         getProducts()
-    }, [rows])
+    }, [])
 
 
     //llamadas api
@@ -37,6 +39,8 @@ function Tabla(filas) {
             stock: Number(form.stock),
             estado: form.estado == 'Activo' ? true : false
         }
+
+
 
         const response = await apiClient.patch(`/${id}/update`, data)
         return response.data
@@ -66,10 +70,11 @@ function Tabla(filas) {
     }
 
 
-    const onEditar = async (id) => {
-        <ProductForm id={id} />
+    const onEditar = () => {
+        setEdicion(true)
         navigate('/form')
     }
+
 
     const onEstado = async (id, estado) => {
         try {
@@ -79,13 +84,6 @@ function Tabla(filas) {
             console.log(error)
         }
     }
-
-    // const onVer = () => {
-    //     //debe mostrar una pagina de detalles
-    //     getOneProduct(id)
-    // }
-
-
 
     return (
         <table className="table table-striped-columns">
@@ -111,7 +109,12 @@ function Tabla(filas) {
                         <td>{p.stock}</td>
                         <td>{p.estado == true ? 'Activo' : 'Inactivo'}</td>
                         <td>
-                            <button className="btn btn-info" onClick={() => onEditar(p.id_productos)}>Editar</button>
+                            <button className="btn btn-info"
+                                onClick={() => {
+                                    onEditar(p.id_productos)
+                                    setIdBuscar(p.id_productos)
+                                }}
+                            >Editar</button>
                             <button className="btn btn-danger" onClick={() => onEliminar(p.id_productos)}>Eliminar</button>
                             <button className="btn btn-warning" onClick={() => onEstado(p.id_productos, p.estado)}> {`${p.estado == true ? 'Inactivar' : 'Activar'}`}</button>
                         </td>
