@@ -25,7 +25,7 @@ function ProductForm(id = null) {
     const { formulario, setFormulario } = useState(initialStateForm)
 
 
-
+    //=====================================================================
     const getOneProduct = async (id) => {
         const response = await apiClient.get(`/${id}`)
         return response.data.data
@@ -59,6 +59,20 @@ function ProductForm(id = null) {
         return response.data
     }
 
+    //=============================================================================
+
+
+    const buscarProducto = async () => {
+        try {
+            const buscado = await getOneProduct(id)
+            const edicion = await updateProduct(id, buscado)
+            setFormulario({ buscado })
+
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
 
 
     const {
@@ -74,13 +88,6 @@ function ProductForm(id = null) {
     const onSubmit = async (data) => {
 
         console.log('si entre')
-
-        // if (id != null && id != undefined) {
-        //     await updateProduct(id, data)
-        //     console.log('en edicion')
-
-
-        // } else {
 
         try {
             await createProduct(data)
@@ -290,6 +297,7 @@ function ProductForm(id = null) {
                         </div>
                         <div className="col-12">
                             <button type="submit" className="btn btn-primary" >{id != null || id != undefined ? 'Guardar Cambios' : 'Crear Producto'}</button>
+                            <button type="button" className="btn btn-primary" onClick={() => navigate('/')} >Cancelar</button>
                         </div>
                     </form>
                 </div>
