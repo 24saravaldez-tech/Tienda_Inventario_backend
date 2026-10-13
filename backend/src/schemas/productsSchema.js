@@ -1,8 +1,6 @@
 import { z } from 'zod'
 
-const idSchema = z.coerce().number()
-    .int()
-    .positive()
+const idSchema = z
     .string()
 
 const createProductSchema = z.object({
@@ -59,4 +57,4 @@ const statusSchema = z.object({
 
 
 
-export { createProductSchema, statusSchema }
+export { createProductSchema, statusSchema, idSchema }

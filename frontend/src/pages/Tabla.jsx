@@ -1,16 +1,103 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/apiClient'
 
-function Tabla() {
+
+
+const deleteProduct = async (id) => {
+    const response = await apiClient.delete(`/${id}`)
+    return response.data
+}
+
+const updateProductsStatus = async (id, estado) => {
+    const response = await apiClient.put(`/${id}`, { estado: form.estado == 'Activo' ? true : false })
+    return response.data
+}
+
+
+const modalEliminar = (id) => {
+    // const navigate = useNavigate()
+
+    // const cancelar = () => {
+    //     navigate('/')
+    // }
+
+    return (
+        <>
+            <div className="toast theme-accent" role="alert" aria-live="assertive" aria-atomic="true">
+                <div className="toast-header">
+
+                    <strong className="me-auto">Confirmacion de accion</strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div className="toast-body">
+                    Desea eliminar este producto?
+                    <div className="hstack gap-2 mt-2">
+                        <button type="button" className="btn-solid btn-sm" onClick={() => deleteProduct(id)}>Eliminar</button>
+                        <button type="button" className="btn-solid theme-secondary btn-sm" data-bs-dismiss="toast" onClick={() => cancelar()}>Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+const modalCambiarEstado = (id) => {
+    //const navigate = useNavigate()
+
+
+
+    // const cancelar = () => {
+    //     navigate('/')
+    // }
+
+    const confirmar = (id) => {
+        updateProductsStatus(id)
+    }
+
+
+    return (
+        <>
+            <div className="toast theme-primary" role="alert" aria-live="assertive" aria-atomic="true">
+                <div className="toast-header">
+
+                    <strong className="me-auto">Cambiar estado</strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div className="toast-body">
+                    Desea cambiar el estado de este producto?
+                    <div className="hstack gap-2 mt-2">
+                        <button type="button" className="btn-solid btn-sm" onClick={() => confirmar()}>Confirmar</button>
+                        <button type="button" className="btn-solid theme-secondary btn-sm" data-bs-dismiss="toast" onClick={() => cancelar()}>Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </>
+    )
+}
+
+
+
+
+
+function Tabla(filas) {
 
     const [rows, setRows] = useState([])
 
+    const getProducts = async () => {
+        const response = await apiClient.get('/')
+        setRows(response.data.data)
 
-    const getOneProduct = async (id) => {
-        const response = await apiClient.get(`/productos/${id}`)
         return response.data.data
     }
 
+    useEffect(() => {
+        getProducts()
+    }, [])
+
+    const getOneProduct = async (id) => {
+        const response = await apiClient.get(`/${id}`)
+        return response.data.data
+    }
 
     const updateProduct = async (id, form) => {
 
@@ -22,66 +109,54 @@ function Tabla() {
             estado: form.estado == 'Activo' ? true : false
         }
 
-        const response = await apiClient.patch(`/productos/${id}/update`, data)
+        const response = await apiClient.patch(`/${id}/update`, data)
         return response.data
     }
 
 
     const updateProductsStatus = async (id, estado) => {
-        const response = await apiClient.put(`/productos/${id}`, { estado: form.estado == 'Activo' ? true : false })
+        const response = await apiClient.put(`/${id}`, { estado: form.estado == 'Activo' ? true : false })
         return response.data
     }
 
 
     const deleteProduct = async (id) => {
-        const response = await apiClient.delete(`/productos/${id}`)
+        const response = await apiClient.delete(`/${id}`)
         return response.data
     }
 
 
-    const onEliminar = () => {
-        //debe mostrar un modal
-        console.log('confirmacion')
+    const onEliminar = (id) => {
+        modalEliminar(id)
+
+        useEffect(() => {
+            getProducts()
+        }, [])
     }
-    const onEditar = () => {
+    const onEditar = (id, codigo, nombre, descripcion, categoria, marca, precio, stock, estado) => {
         //debe mostrar el formulario de edicion
-        updateProduct()
+        updateProduct(id)
+        // refresh()
     }
     const onVer = () => {
         //debe mostrar una pagina de detalles
-        getOneProduct()
+        getOneProduct(id)
     }
-    const onEstado = () => {
+    const onEstado = (id) => {
         //muestra antes el modal de confimacion antes de cambiar el estado
-        updateProductsStatus()
+        modalCambiarEstado(id)
+
+        useEffect(() => {
+            getProducts()
+        }, [])
+        // updateProductsStatus(id)
+        //refresh()
     }
 
     const onConfirmar = (id) => {
         deleteProduct(id)
     }
 
-    const getProducts = async () => {
-        const response = await apiClient.get('/productos')
-
-        let filas = {
-            ...response.data.data,
-            acciones: {
-                eliminar: () => onEliminar(response.data.data.id_productos),
-                editar: () => onEditar(response.data.data.id_productos),
-                ver: () => onVer(response.data.data.id_productos),
-                cambiarEstado: () => onEstado(response.data.data.id_productos)
-            }
-        }
-
-        setRows(filas)
-        return response.data.data
-    }
-
-
-
-    useEffect(() => {
-        getProducts()
-    }, [])
 
 
     return (
@@ -106,8 +181,12 @@ function Tabla() {
                         <td>{p.categoria}</td>
                         <td>{p.precio}</td>
                         <td>{p.stock}</td>
-                        <td>{p.estado}</td>
-                        <td>{p.acciones}</td>
+                        <td>{p.estado == true ? 'Activo' : 'Inactivo'}</td>
+                        <td>
+                            <button className="btn btn-info" onClick={() => onEditar(p.id_productos, p.codigo, p.nombre, p.categoria, p.precio, p.stock, p.estado)}>Editar</button>
+                            <button className="btn btn-danger" onClick={() => onEliminar(p.id_productos)}>Eliminar</button>
+                            <button className="btn btn-warning" onClick={() => onEstado(p.id_productos)}> {`${p.estado == true ? 'Inactivar' : 'Activar'}`}</button>
+                        </td>
                     </tr>
                 ))}
             </tbody>

@@ -32,14 +32,16 @@ const formSchema = z.object({
 
 
     precio: z
-        .number('El precio debe ser en numeros')
-        .positive('El precio debe ser mayor que 0'),
+    .string(),
+        // .number('El precio debe ser en numeros')
+        // .positive('El precio debe ser mayor que 0'),
 
 
     stock: z
-        .number('Ingrese una cantidad de stock')
-        .int('Debe ser un numero entero')
-        .min(0, 'El stock no puede ser negativo'),
+    .string(),
+        // .number('Ingrese una cantidad de stock')
+        // .int('Debe ser un numero entero')
+        // .min(0, 'El stock no puede ser negativo'),
 
     estado: z
         .string('El estado debe ser Activo o Inactivo')

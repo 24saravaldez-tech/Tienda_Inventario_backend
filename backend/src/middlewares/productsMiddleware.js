@@ -1,4 +1,4 @@
-import { createProductSchema, idSchema, statusSchema, updateProductSchema } from "../schemas/productsSchema.js"
+import { createProductSchema, idSchema, statusSchema } from "../schemas/productsSchema.js"
 
 const idMiddlware = (req, res, next, id) => {
     const result = idSchema.safeParse(id)
