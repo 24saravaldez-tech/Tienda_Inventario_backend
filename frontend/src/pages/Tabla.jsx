@@ -67,6 +67,7 @@ function Tabla(filas) {
         } catch (error) {
             console.log(error)
         }
+        getProducts()
     }
 
 

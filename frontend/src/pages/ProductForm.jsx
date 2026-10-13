@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { formSchema } from '../schemas/formSchema'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 import { apiClient } from '../api/apiClient';
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import { useContext } from 'react';
 import { ProductosContext } from '../context/context';
 
@@ -14,7 +14,7 @@ const ProductForm = () => {
     const { id_buscar, setIdBuscar, setEdicion } = useContext(ProductosContext)
     const navigate = useNavigate()
 
-    const initialStateForm = {
+    let initialStateForm = {
         codigo: '',
         nombre: '',
         descripcion: '',
@@ -36,7 +36,6 @@ const ProductForm = () => {
 
         try {
             const buscado = await getOneProduct(id_buscar)
-            console.log('buscado', buscado)
             let nuevaData = {
                 codigo: buscado.codigo,
                 nombre: buscado.nombre,
@@ -47,8 +46,9 @@ const ProductForm = () => {
                 stock: buscado.stock,
                 estado: buscado.estado
             }
+
+          // setFormulario(nuevaData)
             console.log('yo soy la nueva data: ', nuevaData)
-            setFormulario(nuevaData)
             return nuevaData
 
         } catch (error) {
@@ -56,14 +56,6 @@ const ProductForm = () => {
         }
 
     }
-
-    console.log(id_buscar, 'en formulario')
-
-    if (id_buscar) {
-        console.log('entro')
-    //    buscarProducto()
-    }
-
 
     const updateProduct = async (id, form) => {
 
@@ -93,7 +85,9 @@ const ProductForm = () => {
     }
 
     //=============================================================================
-
+    if (id_buscar) {
+        buscarProducto()
+    }
 
     const {
         handleSubmit,
@@ -105,13 +99,15 @@ const ProductForm = () => {
         defaultValues: formulario,
         resolver: zodResolver(formSchema)
     })
-    console.log(formulario)
+
+
 
     const onSubmit = async (data) => {
 
         if (id_buscar == null || id_buscar == undefined) {
             try {
                 await createProduct(data)
+
             } catch (error) {
                 console.log(error)
             }
@@ -125,12 +121,11 @@ const ProductForm = () => {
 
         }
 
-        reset(initialStateForm)
+        reset()
         navigate('/')
 
     }
 
-    console.log(watch())
 
     return (
         <>

@@ -1,7 +1,7 @@
-import { z } from 'zod'
+import { coerce, z } from 'zod'
 
 const formSchema = z.object({
-    codigo: z
+    codigo: z.coerce
         .string('Escriba un codigo para el producto')
         .trim()
         .min(1, 'Debe ingresar un codigo')
@@ -33,15 +33,10 @@ const formSchema = z.object({
 
     precio: z
     .string(),
-        // .number('El precio debe ser en numeros')
-        // .positive('El precio debe ser mayor que 0'),
 
 
     stock: z
     .string(),
-        // .number('Ingrese una cantidad de stock')
-        // .int('Debe ser un numero entero')
-        // .min(0, 'El stock no puede ser negativo'),
 
     estado: z
         .boolean('El estado debe ser Activo o Inactivo')
