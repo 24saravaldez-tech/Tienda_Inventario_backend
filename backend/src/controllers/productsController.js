@@ -61,7 +61,7 @@ const updateProduct = async (req, res) => {
 }
 
 const createProduct = async (req, res) => {
-    const existe = await getProductByCode(req.body.codigo)
+    const existe = await getProductsCode(req.body.codigo)
 
     if (existe) {
         return res.status(409).json({ message: 'Ya hay un producto con ese codigo. No pueden haber dos codigos iguales' })
