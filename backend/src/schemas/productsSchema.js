@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 const idSchema = z
     .string()
+    .regex(/^\d+$/, "El texto debe contener solo números enteros")
 
 const createProductSchema = z.object({
     codigo: z

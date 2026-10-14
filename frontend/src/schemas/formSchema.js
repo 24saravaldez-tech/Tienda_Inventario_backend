@@ -32,17 +32,22 @@ const formSchema = z.object({
 
 
     precio: z
-        .number('El precio debe ser en numeros')
-        .positive('El precio debe ser mayor que 0'),
+        .string()
+        .regex(/^\d+(\.\d+)?$/, "El precio debe contener solo números enteros")
+        //las expresiones regulares fueron investigadas :/
+    // .number('El precio debe ser en numeros')
+    // .positive('El precio debe ser mayor que 0'),
 
-
+    ,
     stock: z
-        .number('Ingrese una cantidad de stock')
-        .int('Debe ser un numero entero')
-        .min(0, 'El stock no puede ser negativo'),
-
+        .string()
+        .regex(/^\d+$/, "El stock debe contener solo números enteros")
+    // .number('Ingrese una cantidad de stock')
+    // .int('Debe ser un numero entero')
+    // .min(0, 'El stock no puede ser negativo'),
+    ,
     estado: z
-        .string('El estado debe ser Activo o Inactivo')
+        .boolean('El estado debe ser Activo o Inactivo')
 })
 
 export { formSchema }
