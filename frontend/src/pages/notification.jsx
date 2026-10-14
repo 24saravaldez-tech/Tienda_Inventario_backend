@@ -1,17 +1,11 @@
-const notification = (message, color) => {
+function Notification({ message, color = 'success', onClose }) {
+    if (!message) return null;
     return (
-        <>
-            <div class="alert theme-accent" role="alert">
-                <p>A simple accent alert—check it out!</p>
-            </div>
-            <div class="alert theme-success" role="alert">
-                <p>A simple success alert—check it out!</p>
-            </div>
-            <div class="alert theme-danger" role="alert">
-                <p>A simple danger alert—check it out!</p>
-            </div>
-        </>
-    )
+        <div className={`alert alert-${color} d-flex justify-content-between align-items-start`} role="alert">
+            <span>{message}</span>
+            {onClose && <button type="button" className="btn-close ms-3" aria-label="Cerrar notificación" onClick={onClose} />}
+        </div>
+    );
 }
 
-export { notification }
+export { Notification };

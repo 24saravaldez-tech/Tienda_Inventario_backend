@@ -1,56 +1,128 @@
-import { useNavigate } from "react-router-dom"
-import { apiClient } from "../api/apiClient.js"
-import { Modal, Button } from 'react-bootstrap';
-import './ConfirmModal.css';
+import { useContext, useEffect, useState } from 'react';
+import { ProductosContext } from '../context/context';
+import { Notification } from './notification';
 
-const CustomModal = (onCancel, onEliminar, onEditar, onConfirmar, message, body, cancelText, confirmText) => {
+function DeleteModal({ id }) {
+    const { deleteProduct, setIdEliminar } = useContext(ProductosContext);
+    const [error, setError] = useState('');
 
-    const handleCancel = () => {
-        if (typeof onEliminar === 'function') onEliminar()
-        if (typeof onCancel === 'function') onCancel()
-        if (typeof onEditar === 'function') onEditar()
+    const onCancel = () => {
+        setIdEliminar(null);
     };
 
-    const handleConfirm = () => {
-        if (typeof onConfirmar === 'function') onConfirmar();
+    const onEliminar = async () => {
+        setError('');
+        try {
+            await deleteProduct(id)
+            setIdEliminar(null)
+        } catch (error) {
+            const mensaje = error.response.data.message
+            setError(mensaje)
+        }
     };
+
 
     return (
-        <Modal>
-            {/* {closeButton ? (
-                <Modal.Header closeButton>
-                    <Modal.Title>{title}</Modal.Title>
-                </Modal.Header>
-            ) : (
-                <Modal.Header className="app-confirm-modal__header">
-                    <Modal.Title>{title}</Modal.Title>
-                </Modal.Header>
-            )} */}
-
-            <Modal.Body>
-                <>
-                    <p className="app-confirm-modal__message mb-0">{message}</p>
-                    {body && <div className="app-confirm-modal__body mt-3">{body}</div>}
-                </>
-
-            </Modal.Body>
-
-
-            <Modal.Footer className="app-confirm-modal__footer">
-                {!hideCancel && (
-                    <Button type="button" onClick={handleCancel}>
-                        {cancelText}
-                    </Button>
-                )}
-                {!hideConfirm && (
-                    <Button type="button" onClick={handleConfirm}>
-                        {confirmText}
-                    </Button>
-                )}
-            </Modal.Footer>
-
-        </Modal>
+        <>
+            <div className="modal-backdrop fade show" />
+            <div className="modal show d-block" tabIndex="-1" role="dialog" aria-modal="true">
+                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="eliminar">Eliminar producto</h5>
+                            <button type="button" className="btn-close" aria-label="Cerrar modal" onClick={onCancel} autoFocus />
+                        </div>
+                        <div className="modal-body">
+                            <p>Deseas eliminar el producto?</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
+                            <button type="button" className="btn btn-danger" onClick={onEliminar}>Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
     );
-};
+}
 
-export default CustomModal;
+function StatusModal({ id }) {
+    const { getOneProduct, updateProductsStatus, setIdEstado } = useContext(ProductosContext);
+    const [error, setError] = useState('');
+
+    const onCancel = () => {
+        setIdEstado(null)
+    }
+
+    const onEstado = async () => {
+        setError('')
+        try {
+            const producto = await getOneProduct(id);
+            await updateProductsStatus(id, producto.estado);
+            setIdEstado(null)
+        } catch (error) {
+            const mensaje = error.response.data.message 
+            setError(mensaje)
+        }
+    };
+
+
+
+    return (
+        <>
+            <div className="modal-backdrop fade show" />
+            <div className="modal show d-block" tabIndex="-1" role="dialog" aria-modal="true">
+                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="estado">Cambiar estado</h5>
+                            <button type="button" className="btn-close" aria-label="Cerrar modal" onClick={onCancel} autoFocus />
+                        </div>
+                        <div className="modal-body">
+                            <p>Desea cambiar el estado del producto?</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
+                            <button type="button" className="btn btn-warning" onClick={onEstado}>Cambiar estado</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+function DetailsModal({ producto, onCancel }) {
+
+    return (
+        <>
+            <div className="modal-backdrop fade show" />
+            <div className="modal show d-block" tabIndex="-1" role="dialog" aria-modal="true">
+                <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="detalles">Detalles del producto</h5>
+                            <button type="button" className="btn-close" aria-label="Cerrar modal" onClick={onCancel} autoFocus />
+                        </div>
+                        <div className="modal-body">
+                            <p><strong>Código:</strong> {producto.codigo}</p>
+                            <p><strong>Nombre:</strong> {producto.nombre}</p>
+                            <p><strong>Descripción:</strong> {producto.descripcion || 'Sin descripción'}</p>
+                            <p><strong>Categoría:</strong> {producto.categoria}</p>
+                            <p><strong>Marca:</strong> {producto.marca}</p>
+                            <p><strong>Precio:</strong> {producto.precio}</p>
+                            <p><strong>Stock:</strong> {producto.stock}</p>
+                            <p><strong>Estado:</strong> {producto.estado == true ? 'Activo' : 'Inactivo'}</p>
+                            <p><strong>Fecha de creación:</strong> {producto.fecha_creacion}</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" onClick={onCancel}>Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export { DeleteModal, StatusModal, DetailsModal };

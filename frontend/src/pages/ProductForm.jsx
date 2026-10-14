@@ -1,40 +1,28 @@
-import React, { useEffect } from 'react'
 import { formSchema } from '../schemas/formSchema'
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { apiClient } from '../api/apiClient';
-import { data, useNavigate } from "react-router-dom";
-import { useContext } from 'react';
 import { ProductosContext } from '../context/context';
+import { Notification } from './notification';
 
 
 const ProductForm = () => {
     const {
         id_buscar,
-        setIdBuscar,
-        setEdicion,
         formulario,
-        buscarProducto,
         estaEditando,
-        setEstaEditando,
-        initialState,
+        cerrarFormulario,
         createProduct,
         updateProduct } = useContext(ProductosContext)
 
-    const navigate = useNavigate()
-
-    if (id_buscar) {
-        buscarProducto()
-    }
+    const [error, setError] = useState('')
 
     const {
         handleSubmit,
         control,
         reset,
-        formState: { errors },
-        watch
+        formState: { errors }
     } = useForm({
         defaultValues: formulario,
         resolver: zodResolver(formSchema)
@@ -42,32 +30,28 @@ const ProductForm = () => {
 
 
     const onSubmit = async (data) => {
-
-        if (estaEditando == true) {
-            await createProduct(data)
+        setError('')
+        try {
+            if (estaEditando == true) {
+                await updateProduct(id_buscar, data)
+            } else {
+                await createProduct(data)
+            }
+            reset()
+        } catch (error) {
+            const mensaje = error.response?.data?.message || 'No se pudo conectar con la API.'
+            setError(mensaje)
         }
-
-        if (estaEditando == false) {
-            console.log('estaoy editando')
-            await updateProduct(id_buscar, data)
-        }
-
-        setEdicion(false)
-        setEstaEditando(false)
-        reset()
-        setIdBuscar(null)
-        navigate('/')
-
     }
 
 
     return (
         <>
-            <div style={{ width: '100vw', height: '100vh' }} >
+            <div>
 
-                <h2 className='m-4 p-4'>productForm</h2>
+                <Notification message={error} color="danger" onClose={() => setError('')} />
 
-                <div className='d-flex-column justify-content-center align-content-center' style={{ width: '60%', height: '75%' }}>
+                <div className='d-flex-column justify-content-center align-content-center'>
 
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="col-md-6">
@@ -85,7 +69,7 @@ const ProductForm = () => {
                                             name='codigo'
                                             className={`form-control ${errors.codigo ? 'is-invalid' : ''}`} {...field}
                                         />
-                                        {errors.nombres && (
+                                        {errors.codigo && (
                                             <div className="invalid-feedback">
                                                 {errors.codigo.message}
                                             </div>
@@ -252,7 +236,7 @@ const ProductForm = () => {
 
                         <div className="col-md-6">
                             <Controller
-                                name='Estado'
+                                name='estado'
                                 control={control}
                                 render={({ field }) =>
                                 (
@@ -260,14 +244,16 @@ const ProductForm = () => {
                                         <label htmlFor="estado">Estado</label>
                                         <select
                                             id="estado"
-                                            className={`form-control ${errors.estado ? 'is-invalid' : ''}`} {...field}>
+                                            className={`form-control ${errors.estado ? 'is-invalid' : ''}`} {...field}
+                                            value={String(field.value)}
+                                            onChange={event => field.onChange(event.target.value === 'true')}>
                                             <option value="" disabled hidden>Selecciona una estado</option>
                                             <option value={true}>Activo</option>
                                             <option value={false}>Inactivo</option>
 
                                         </select>
                                         {errors.estado && (
-                                            <div className="invalid-feedback">{estado.message}</div>
+                                            <div className="invalid-feedback">{errors.estado.message}</div>
                                         )}
                                     </>
                                 )
@@ -276,8 +262,8 @@ const ProductForm = () => {
 
                         </div>
                         <div className="col-12">
-                            <button type="submit" className="btn btn-primary" >{estaEditando == false || estaEditando == null ? 'Guardar Cambios' : 'Crear Producto'}</button>
-                            <button type="button" className="btn btn-primary" onClick={() => { navigate('/'), setEdicion(false) }} >Cancelar</button>
+                            <button type="submit" className="btn btn-primary" >{estaEditando == true ? 'Guardar cambios' : 'Crear producto'}</button>
+                            <button type="button" className="btn btn-primary" onClick={cerrarFormulario} >Cancelar</button>
                         </div>
                     </form>
 
