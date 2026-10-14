@@ -38,16 +38,23 @@ function Tabla() {
 
     return (
         <>
-            {rows.length === 0 ? <p className="alert alert-info">No hay productos registrados. Agrega un nuevo producto para comenzar.</p> : (
+            {rows.length == 0 ? <p className="alert alert-info">No hay productos registrados. Agrega un nuevo producto para comenzar.</p> : (
                 <div className="table-responsive">
                     <table className="table table-striped align-middle">
                         <thead><tr>
-                            <th scope="col">Código</th><th scope="col">Nombre</th><th scope="col">Categoría</th>
-                            <th scope="col">Precio</th><th scope="col">Stock</th><th scope="col">Estado</th><th scope="col">Acciones</th>
+                            <th scope="col">Código</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Stock</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Acciones</th>
                         </tr></thead>
                         <tbody>{rows.map(p => (
                             <tr key={p.id_productos}>
-                                <th scope="row">{p.codigo}</th><td>{p.nombre}</td><td>{p.categoria}</td>
+                                <th scope="row">{p.codigo}</th>
+                                <td>{p.nombre}</td>
+                                <td>{p.categoria}</td>
                                 <td>{Number(p.precio).toFixed(2)}</td><td>{p.stock}</td><td>{p.estado ? 'Activo' : 'Inactivo'}</td>
                                 <td><div className="d-flex flex-wrap gap-2">
                                     <button type="button" className="btn btn-secondary btn-sm" onClick={() => onDetalles(p.id_productos)}>Detalles</button>

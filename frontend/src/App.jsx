@@ -1,6 +1,7 @@
 import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { ProductForm } from './pages/ProductForm';
+import { NotFountPage } from './pages/NotFound';
 
 function App() {
     return (
@@ -8,7 +9,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path='/form' element={<ProductForm />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<NotFountPage />} />
             </Routes>
         </BrowserRouter>
     );

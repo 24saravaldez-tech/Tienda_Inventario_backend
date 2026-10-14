@@ -155,5 +155,5 @@ function ProductosProvider({ children }) {
         </ProductosContext.Provider>
     );
 }
-// eslint-disable-next-line react-refresh/only-export-components
+
 export { ProductosContext, ProductosProvider }
