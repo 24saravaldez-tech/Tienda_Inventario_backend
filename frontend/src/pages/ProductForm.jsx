@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { ProductosContext } from '../context/context';
 import { Notification } from './notification';
 
@@ -17,6 +18,7 @@ const ProductForm = () => {
         updateProduct } = useContext(ProductosContext)
 
     const [error, setError] = useState('')
+    const navigate = useNavigate()
 
     const {
         handleSubmit,
@@ -39,7 +41,7 @@ const ProductForm = () => {
             }
             reset()
         } catch (error) {
-            const mensaje = error.response?.data?.message || 'No se pudo conectar con la API.'
+            const mensaje = error.response.data.message
             setError(mensaje)
         }
     }
@@ -263,7 +265,7 @@ const ProductForm = () => {
                         </div>
                         <div className="col-12">
                             <button type="submit" className="btn btn-primary" >{estaEditando == true ? 'Guardar cambios' : 'Crear producto'}</button>
-                            <button type="button" className="btn btn-primary" onClick={cerrarFormulario} >Cancelar</button>
+                            <button type="button" className="btn btn-primary" onClick={() => { cerrarFormulario(), navigate('/') }} >Cancelar</button>
                         </div>
                     </form>
 

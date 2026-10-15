@@ -34,6 +34,7 @@ function DeleteModal({ id }) {
                         </div>
                         <div className="modal-body">
                             <p>Deseas eliminar el producto?</p>
+                            <Notification message={error} color="danger" />
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
@@ -80,6 +81,7 @@ function StatusModal({ id }) {
                         </div>
                         <div className="modal-body">
                             <p>Desea cambiar el estado del producto?</p>
+                            <Notification message={error} color="danger" />
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancelar</button>

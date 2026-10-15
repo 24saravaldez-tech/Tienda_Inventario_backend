@@ -26,28 +26,23 @@ function ProductosProvider({ children }) {
     const [idEstado, setIdEstado] = useState(null)
 
 
-    useEffect(() => {
-        apiClient.get('/')
-            .then(response => setRows(response.data.data))
-            .catch(error => {
-                const mensaje = error.response?.data?.message || 'No se pudo conectar con la API. Revisa que el backend esté encendido.'
-                setErrorListado(mensaje)
-            });
-    }, [])
-
-    const notificar = (message, color = 'success') => {
-        setAviso({ message, color })
-    }
-
     const getProducts = async () => {
         try {
             const response = await apiClient.get('/')
             setRows(response.data.data)
             setErrorListado('')
         } catch (error) {
-            const mensaje = error.response?.data?.message || 'No se pudo conectar con la API. Revisa que el backend esté encendido.'
+            const mensaje = error.response.data.message
             setErrorListado(mensaje)
         }
+    }
+
+    useEffect(() => {
+        getProducts()
+    }, [])
+
+    const notificar = (message, color = 'success') => {
+        setAviso({ message, color })
     }
 
     const cerrarFormulario = () => {
@@ -77,7 +72,7 @@ function ProductosProvider({ children }) {
         setFormulario({
             codigo: producto.codigo,
             nombre: producto.nombre,
-            descripcion: producto.descripcion || '',
+            descripcion: producto.descripcion,
             categoria: producto.categoria,
             marca: producto.marca,
             precio: String(producto.precio),
@@ -100,7 +95,7 @@ function ProductosProvider({ children }) {
 
     const createProduct = async (form) => {
         const response = await apiClient.post('/', prepararDatos(form))
-        setRows(actuales => [...actuales, response.data.data])
+        await getProducts()
         cerrarFormulario()
         notificar(response.data.message)
     }
@@ -108,20 +103,20 @@ function ProductosProvider({ children }) {
     const updateProduct = async (id, form) => {
         const response = await apiClient.patch(`/${id}/update`, prepararDatos(form))
 
-        setRows(filas => filas.map(p => p.id_productos == id ? response.data.data : p))
+        await getProducts()
         cerrarFormulario()
         notificar(response.data.message)
     }
 
     const updateProductsStatus = async (id, estado) => {
         const response = await apiClient.put(`/${id}`, { estado: !estado })
-        setRows(filas => filas.map(p => p.id_productos == id ? response.data.data : p))
+        await getProducts()
         notificar(response.data.message)
     }
 
     const deleteProduct = async (id) => {
         const response = await apiClient.delete(`/${id}`);
-        setRows(filas => filas.filter(p => p.id_productos != id));
+        await getProducts()
         notificar(response.data.message)
     }
 
